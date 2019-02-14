@@ -100,7 +100,7 @@ class ContactsListFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
     private fun modifyCountryCode(phoneNumber: String, kContact: KContact, oldCode: String, newCode: String) {
         if (phoneNumber.startsWith(oldCode)) {
 
-            val newPhoneNumber = phoneNumber.replace(oldCode, newCode)
+            val newPhoneNumber = phoneNumber.replaceFirst(oldCode, newCode)
             if (kContact.phoneNumbers.contains(newPhoneNumber)) {
                 Log.d("Contacts", kContact.displayName + " , " + phoneNumber + " --> already modified " + newPhoneNumber)
             } else {
