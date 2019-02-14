@@ -17,7 +17,6 @@
 package com.example.android.contactslist.ui
 
 import android.content.ContentProviderOperation
-import android.content.Intent
 import android.database.Cursor
 import android.os.Bundle
 import android.provider.ContactsContract
@@ -88,17 +87,18 @@ class ContactsListFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
 
             for (phoneNumber in kContact.phoneNumbers) {
 
-                val monacoCode = "+377"
-                val sloveniaCode = "+386"
-                val kosovoCode = "+383"
-                modifyCountryCode(phoneNumber, kContact, oldCode = monacoCode, newCode = kosovoCode)
-                modifyCountryCode(phoneNumber, kContact, oldCode = sloveniaCode, newCode = kosovoCode)
+                val codesToConvert = arrayOf("+377", "00377", "+386", "00386", "+381", "00381")
+
+                codesToConvert.forEach {
+                    modifyCountryCode(phoneNumber, kContact, oldCode = it, newCode = "+383")
+
+                }
             }
         }
     }
 
     private fun modifyCountryCode(phoneNumber: String, kContact: KContact, oldCode: String, newCode: String) {
-        if (phoneNumber.contains(oldCode)) {
+        if (phoneNumber.startsWith(oldCode)) {
 
             val newPhoneNumber = phoneNumber.replace(oldCode, newCode)
             if (kContact.phoneNumbers.contains(newPhoneNumber)) {
@@ -106,7 +106,7 @@ class ContactsListFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
             } else {
                 Log.d("Contacts", kContact.displayName + " , " + phoneNumber + " --> " + newPhoneNumber)
 
-                addNumber(kContact.rawId, newPhoneNumber);
+                addNumber(kContact.rawId, newPhoneNumber)
             }
         } else {
             Log.d("Contacts", kContact.displayName + " , " + phoneNumber + " --> not modifying")
@@ -163,7 +163,7 @@ class ContactsListFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
     }
 
 
-    fun addNumber(rawContactId: Int, number: String) {
+    private fun addNumber(rawContactId: Int, number: String) {
         val ops = ArrayList<ContentProviderOperation>()
         ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
                 .withValue(Contacts.Data.RAW_CONTACT_ID, rawContactId)
@@ -187,15 +187,6 @@ class ContactsListFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
         val rawId = c.getInt(c.getColumnIndex(ContactsContract.RawContacts._ID))
         c.close()
         return rawId
-    }
-
-    fun openContact(kContact: KContact) {
-
-        // Creates a contact lookup Uri from contact ID and lookup_key
-        val mContactUri = Contacts.getLookupUri(kContact.id.toLong(), kContact.lookupKey)
-        val intent = Intent(Intent.ACTION_EDIT, mContactUri)
-        startActivity(intent)
-
     }
 
 }
